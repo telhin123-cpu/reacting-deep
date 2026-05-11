@@ -1,6 +1,6 @@
 {
   "name": "reacting-deep",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Foundry VTT module for DeepSeek AI integration - translation and chat assistant.",
   "private": true,
   "type": "module",

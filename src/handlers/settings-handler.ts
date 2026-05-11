@@ -1,13 +1,16 @@
 import { Translator } from "../translator";
 import { KeyFor, ReactingDeepNamespace } from "../types";
 
-// Declare Foundry VTT globals
+// Глобальные переменные Foundry
 declare const game: any;
 declare const Hooks: any;
 declare const $: any;
+declare const Application: any;
+declare const mergeObject: any;
 
 export class ReactingDeepSettingHandler {
   gameSettings: any = game?.settings;
+  
   readonly settings = {
     apiKeyDeepSeek: {
       name: "reacting-deep.settings.apiKeyDeepSeek.name",
@@ -24,7 +27,7 @@ export class ReactingDeepSettingHandler {
       scope: "world",
       config: true,
       type: String,
-      default: "https://api.deepseek.com",
+      default: "https://deepseek.com",
     },
     targetModel: {
       name: "reacting-deep.settings.model.name",
@@ -54,11 +57,9 @@ export class ReactingDeepSettingHandler {
   }
 
   private _registerRefreshButton(): void {
-    // Foundry v13 uses "renderSettingsConfig", fallback also handles "renderApplication"
     const addBtn = (_app: any, html: any) => {
       const modelRow = html.find(`[name="reacting-deep.targetModel"]`).closest(".form-group");
-      if (!modelRow.length) return;
-      if (modelRow.find(".translate-refresh-btn").length) return;
+      if (!modelRow.length || modelRow.find(".translate-refresh-btn").length) return;
 
       const btn = $(`<button type="button" class="translate-refresh-btn" style="margin-top:4px;width:100%;">
         <i class="fas fa-sync-alt"></i> Refresh Models
@@ -82,76 +83,45 @@ export class ReactingDeepSettingHandler {
     };
 
     Hooks.on("renderSettingsConfig", addBtn);
-    Hooks.on("renderApplication", addBtn);
   }
 
   private _registerChatButton(): void {
-    Hooks.on("renderSidebarTab", (app: any, html: any) => {
-      // Проверяем, есть ли у пользователя доступ к кнопке
+    // Хук renderChatLog срабатывает при отрисовке вкладки чата в сайдбаре
+    Hooks.on("renderChatLog", (_app: any, html: any) => {
       const allowedRoles = ReactingDeepSettingHandler.getSetting("reacting-deep", "chatButtonRoles") as string;
-      const userRoles = allowedRoles.split(',').map((r: string) => r.trim());
-      const userRole = game?.user?.role || 0;
-      
-      // Проверяем доступ по роли (1=GAMEMASTER, 2=ASSISTANT, 3=PLAYER)
-      const hasAccess = userRoles.some((role: string) => {
-        if (role === "GAMEMASTER" && userRole === 1) return true;
-        if (role === "ASSISTANT" && userRole === 2) return true;
-        if (role === "PLAYER" && userRole === 3) return true;
-        return false;
-      });
+      const rolesArray = allowedRoles.split(',').map(r => r.trim());
+      const userRole = game?.user?.role;
 
+      // Соответствие имен ролей и ID в Foundry VTT
+      const roleMap: Record<string, number> = {
+        "PLAYER": 1,
+        "ASSISTANT": 2,
+        "GAMEMASTER": 3
+      };
+
+      const hasAccess = rolesArray.some(role => userRole === roleMap[role]);
       if (!hasAccess) return;
 
-      // Создаем кнопку для чата с DeepSeek
+      // Создаем компактную кнопку для заголовка чата
       const button = $(`
-        <button class="reacting-deep-chat-btn" style="
-          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-          color: white;
-          border: none;
-          border-radius: 8px;
-          padding: 10px 16px;
-          margin: 10px;
-          cursor: pointer;
-          font-weight: bold;
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-          transition: all 0.3s ease;
-        ">
-          <i class="fas fa-robot" style="font-size: 1.2em;"></i>
-          <span>Chat with DeepSeek</span>
-        </button>
+        <a class="reacting-deep-chat-header-btn" title="Chat with DeepSeek" style="flex: 0; margin-left: 5px; cursor: pointer;">
+          <i class="fas fa-robot"></i>
+        </a>
       `);
 
-      button.on("click", () => {
-        ReactingDeepSettingHandler.openChatDialog();
-      });
+      button.on("click", () => ReactingDeepSettingHandler.openChatDialog());
 
-      button.on("mouseenter", function(this: any) {
-        $(this).css({
-          transform: "translateY(-2px)",
-          boxShadow: "0 6px 12px rgba(0, 0, 0, 0.15)"
-        });
-      });
-
-      button.on("mouseleave", function(this: any) {
-        $(this).css({
-          transform: "translateY(0)",
-          boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)"
-        });
-      });
-
-      // Добавляем кнопку в Sidebar Controls
-      const controls = html.find(".sidebar-tab[data-tab='controls']");
-      if (controls.length) {
-        controls.append(button);
+      // Добавляем кнопку в блок действий в заголовке чата
+      const headerActions = html.find(".directory-header .header-actions");
+      if (headerActions.length) {
+        headerActions.append(button);
       }
     });
   }
 
   static openChatDialog(): void {
-    new ChatDialog().render(true);
+    const dialog = new ChatDialog();
+    dialog.render(true);
   }
 
   private async _registerSettings(): Promise<void> {
@@ -174,37 +144,37 @@ export class ReactingDeepSettingHandler {
   static getSetting(
     namespace: ReactingDeepNamespace,
     key: KeyFor<ReactingDeepNamespace>,
-  ): string | boolean | number | object | undefined {
-    const gameSettings = game.settings!;
-    return gameSettings.get(namespace as "core", key as KeyFor<"core">);
+  ): any {
+    return game.settings.get(namespace, key);
   }
 }
 
-class ChatDialog {
+/**
+ * Класс окна чата, наследующий стандартный интерфейс Foundry
+ */
+class ChatDialog extends Application {
   static get defaultOptions() {
-    return {
-      title: "DeepSeek Chat",
+    return mergeObject(super.defaultOptions, {
+      id: "reacting-deep-chat-dialog",
+      title: "DeepSeek Assistant",
       template: "modules/reacting-deep/templates/chat-dialog.html",
-      width: 600,
-      height: 700,
+      width: 450,
+      height: 600,
       resizable: true,
-    };
-  }
-
-  render(force?: boolean): any {
-    // Simple render implementation
-    const app = this as any;
-    app._render(force);
-    return app;
+      minimizable: true,
+      classes: ["reacting-deep-window"]
+    });
   }
 
   getData() {
     return {
-      messages: [],
+      messages: []
     };
   }
 
   activateListeners(html: any): void {
+    super.activateListeners(html);
+
     const sendBtn = html.find(".chat-send-btn");
     const input = html.find(".chat-input");
     const messagesContainer = html.find(".chat-messages");
@@ -213,20 +183,18 @@ class ChatDialog {
       const message = input.val() as string;
       if (!message.trim()) return;
 
-      // Добавляем сообщение пользователя
-      this.addMessage(messagesContainer, "user", message);
+      this._addMessage(messagesContainer, "user", message);
       input.val("");
 
-      // Отправляем запрос к DeepSeek
       try {
         const response = await Translator.chatWithDeepSeek(message);
-        this.addMessage(messagesContainer, "assistant", response || "No response from DeepSeek");
+        this._addMessage(messagesContainer, "assistant", response || "No response.");
       } catch (error) {
-        this.addMessage(messagesContainer, "error", `Error: ${error}`);
+        this._addMessage(messagesContainer, "error", `System Error: ${error}`);
       }
     });
 
-    input.on("keypress", (e: any) => {
+    input.on("keydown", (e: any) => {
       if (e.key === "Enter" && !e.shiftKey) {
         e.preventDefault();
         sendBtn.trigger("click");
@@ -234,23 +202,15 @@ class ChatDialog {
     });
   }
 
-  private addMessage(container: any, type: string, content: string): void {
-    const messageClass = type === "user" ? "user-message" : type === "assistant" ? "assistant-message" : "error-message";
-    const icon = type === "user" ? "fas fa-user" : type === "assistant" ? "fas fa-robot" : "fas fa-exclamation-triangle";
-    
-    const message = $(`
-      <div class="chat-message ${messageClass}">
-        <div class="message-icon"><i class="${icon}"></i></div>
-        <div class="message-content">${content}</div>
+  private _addMessage(container: any, type: string, content: string): void {
+    const icon = type === "user" ? "fa-user" : type === "assistant" ? "fa-robot" : "fa-exclamation-triangle";
+    const msgHtml = $(`
+      <div class="chat-message ${type}-message" style="margin-bottom: 10px; display: flex; gap: 8px;">
+        <i class="fas ${icon}"></i>
+        <div class="content">${content}</div>
       </div>
     `);
-    
-    container.append(message);
-    container.scrollTop(container[0].scrollHeight);
-  }
-
-  // Simple implementation for Foundry VTT compatibility
-  private _render(force?: boolean): void {
-    // This would be implemented by Foundry VTT
+    container.append(msgHtml);
+    container.scrollTop(container.prop("scrollHeight"));
   }
 }

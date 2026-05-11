@@ -2,7 +2,7 @@
   "id": "reacting-deep",
   "title": "Reacting Deep",
   "description": "DeepSeek AI chat assistant for Foundry VTT - chat with AI assistant directly in your game.",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "type": "module",
   "compatibility": {
     "minimum": "13",
@@ -18,7 +18,7 @@
   "url": "https://github.com/telhin123-cpu/reacting-deep",
   "readme": "https://github.com/telhin123-cpu/reacting-deep/blob/master/README.md",
   "manifest": "https://raw.githubusercontent.com/telhin123-cpu/reacting-deep/refs/heads/main/module.json",
-  "download": "https://github.com/telhin123-cpu/reacting-deep/releases/download/1.0.2/module.zip",
+  "download": "https://github.com/telhin123-cpu/reacting-deep/releases/download/1.0.3/module.zip",
   "changelog": "https://github.com/telhin123-cpu/reacting-deep/blob/master/CHANGELOG.md",
   "bugs": "https://github.com/telhin123-cpu/reacting-deep/issues",
   "esmodules": [
