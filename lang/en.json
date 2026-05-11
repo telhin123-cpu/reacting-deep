@@ -1,0 +1,10 @@
+{
+  "reacting-deep.settings.apiKeyDeepSeek.name": "DeepSeek API Key",
+  "reacting-deep.settings.apiKeyDeepSeek.hint": "API key from DeepSeek platform (platform.deepseek.com).",
+  "reacting-deep.settings.apiEndpoint.name": "API Endpoint",
+  "reacting-deep.settings.apiEndpoint.hint": "The base endpoint for DeepSeek API.",
+  "reacting-deep.settings.model.name": "AI Model",
+  "reacting-deep.settings.model.hint": "The DeepSeek model to use for chat. Click 'Refresh Models' to update the list.",
+  "reacting-deep.settings.chatButtonRoles.name": "Chat Button Roles",
+  "reacting-deep.settings.chatButtonRoles.hint": "Comma-separated list of roles that can see the chat button (GAMEMASTER, ASSISTANT, PLAYER)"
+}

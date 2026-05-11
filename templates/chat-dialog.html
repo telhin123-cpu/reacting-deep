@@ -1,0 +1,221 @@
+<form class="reacting-deep-chat-dialog">
+  <div class="chat-container" style="
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background: #f5f5f5;
+    border-radius: 8px;
+    overflow: hidden;
+  ">
+    <div class="chat-header" style="
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 15px 20px;
+      font-weight: bold;
+      font-size: 1.2em;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    ">
+      <i class="fas fa-robot"></i>
+      <span>DeepSeek Chat Assistant</span>
+    </div>
+    
+    <div class="chat-messages" style="
+      flex: 1;
+      padding: 20px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    ">
+      <div class="welcome-message" style="
+        background: white;
+        padding: 15px;
+        border-radius: 10px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        border-left: 4px solid #667eea;
+      ">
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+          <i class="fas fa-robot" style="color: #667eea; font-size: 1.2em;"></i>
+          <strong style="color: #333;">DeepSeek Assistant</strong>
+        </div>
+        <p style="margin: 0; color: #555; line-height: 1.5;">
+          Hello! I'm your DeepSeek AI assistant. I can help you with:
+        </p>
+        <ul style="margin: 10px 0 0 20px; color: #555;">
+          <li>Translating game content</li>
+          <li>Answering rules questions</li>
+          <li>Generating story ideas</li>
+          <li>Creating NPC descriptions</li>
+          <li>And much more!</li>
+        </ul>
+        <p style="margin: 10px 0 0 0; color: #777; font-size: 0.9em;">
+          Just type your question below and press Enter or click Send.
+        </p>
+      </div>
+    </div>
+    
+    <div class="chat-input-area" style="
+      padding: 20px;
+      background: white;
+      border-top: 1px solid #e0e0e0;
+    ">
+      <div style="display: flex; gap: 10px;">
+        <textarea 
+          class="chat-input" 
+          placeholder="Type your message here... (Shift+Enter for new line, Enter to send)"
+          style="
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            resize: none;
+            font-family: inherit;
+            font-size: 14px;
+            min-height: 60px;
+            transition: border-color 0.3s;
+          "
+          rows="3"
+        ></textarea>
+        <button 
+          class="chat-send-btn" 
+          type="button"
+          style="
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 0 20px;
+            cursor: pointer;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+            min-width: 100px;
+          "
+        >
+          <i class="fas fa-paper-plane"></i>
+          <span>Send</span>
+        </button>
+      </div>
+      <div style="
+        margin-top: 10px;
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.8em;
+        color: #888;
+      ">
+        <span>Powered by DeepSeek AI</span>
+        <span>Model: <span class="current-model">deepseek-chat</span></span>
+      </div>
+    </div>
+  </div>
+</form>
+
+<style>
+  .chat-message {
+    display: flex;
+    gap: 12px;
+    padding: 12px;
+    border-radius: 10px;
+    animation: fadeIn 0.3s ease;
+  }
+  
+  .user-message {
+    background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+    border-left: 4px solid #2196f3;
+    margin-left: 40px;
+  }
+  
+  .assistant-message {
+    background: linear-gradient(135deg, #f3e5f5 0%, #e1bee7 100%);
+    border-left: 4px solid #9c27b0;
+    margin-right: 40px;
+  }
+  
+  .error-message {
+    background: linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%);
+    border-left: 4px solid #f44336;
+  }
+  
+  .message-icon {
+    flex-shrink: 0;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+  }
+  
+  .user-message .message-icon {
+    background: #2196f3;
+  }
+  
+  .assistant-message .message-icon {
+    background: #9c27b0;
+  }
+  
+  .error-message .message-icon {
+    background: #f44336;
+  }
+  
+  .message-content {
+    flex: 1;
+    line-height: 1.5;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+  }
+  
+  .chat-input:focus {
+    outline: none;
+    border-color: #667eea;
+  }
+  
+  .chat-send-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(102, 126, 234, 0.3);
+  }
+  
+  .chat-send-btn:active {
+    transform: translateY(0);
+  }
+  
+  .chat-send-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none !important;
+  }
+  
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  .chat-messages::-webkit-scrollbar {
+    width: 8px;
+  }
+  
+  .chat-messages::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+  }
+  
+  .chat-messages::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 4px;
+  }
+  
+  .chat-messages::-webkit-scrollbar-thumb:hover {
+    background: #a1a1a1;
+  }
+</style>
