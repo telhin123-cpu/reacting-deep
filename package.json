@@ -1,6 +1,6 @@
 {
   "name": "reacting-deep",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Foundry VTT module for DeepSeek AI integration - translation and chat assistant.",
   "private": true,
   "type": "module",
@@ -9,7 +9,6 @@
     "lint:fix": "eslint ./src --ext .ts --fix",
     "build": "esbuild src/main.ts --bundle --keep-names --minify --sourcemap --outdir=scripts",
     "dev": "esbuild src/main.ts --bundle --keep-names --watch --sourcemap --outdir=scripts",
-    "package": "powershell -ExecutionPolicy Bypass -File build.ps1",
     "prepare": "husky"
   },
   "devDependencies": {

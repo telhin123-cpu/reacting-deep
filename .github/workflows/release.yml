@@ -26,7 +26,7 @@ jobs:
 
       - name: Package module
         run: |
-          zip -r module.zip module.json lang/ scripts/ images/ README.md CHANGELOG.md LICENSE
+          zip -r module.zip module.json lang/ scripts/ styles/ templates/ images/ README.md CHANGELOG.md LICENSE
 
       - name: Create Release
         uses: softprops/action-gh-release@v2
